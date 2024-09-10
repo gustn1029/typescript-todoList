@@ -1,5 +1,5 @@
 interface TodoData {
-  id: number;
+  id?: number;
   todo: string;
 }
 
@@ -14,15 +14,20 @@ const todoDatas: TodoData[] = [
   },
 ];
 
-const addTodoData = (todoText: string) => {
-  const newTodoId = todoDatas[todoDatas.length - 1].id + 1;
-  const newTodo = {
-    id: newTodoId,
-    todo: todoText,
-  };
-  todoDatas.push(newTodo);
-  return todoDatas;
-};
+const addTodoData = async (todoText:string): Promise<TodoData[]> =>{
+    const newTodo:Partial<TodoData> = {
+        todo:todoText
+    }
+    const res = await fetch("http://localhost:3000/todos",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify(newTodo)
+    })
+    const newTodoDatas = await res.json()
+    return newTodoDatas
+}
 
 const addTodoList = () => {
   const $todoInput = document.querySelector<HTMLInputElement>("#todo-input");
@@ -40,9 +45,9 @@ $todoInputButton?.addEventListener("click", addTodoList);
 
 // 데이터를 넣어주면 todoList를 만들어주는애
 const todoListRender = (todoDatas: TodoData[]) => {
-  const $todoContainer = document.querySelector("#todo-container");
+  const $todoContainer = document.querySelector<HTMLUListElement>("#todo-container");
   if(!$todoContainer) return;
-  
+
   $todoContainer.innerHTML = "";
   todoDatas.forEach((todoData) => {
     const $todoLi = document.createElement("li");
